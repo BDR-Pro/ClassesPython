@@ -67,3 +67,9 @@ print(my_movie)
 # Fetch the movie trailer
 trailer_url = my_movie.fetch_movie_trailer()
 print("Trailer URL:", trailer_url)
+
+
+## LICENSE
+
+   
+You should include this content in a file named `README.md` in your project's root directory, and it will be displayed as the project's documentation on platforms like GitHub.

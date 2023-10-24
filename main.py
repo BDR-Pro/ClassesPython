@@ -1,4 +1,6 @@
 import json
+from dotenv import load_dotenv
+import os
 import requests
 class Movie:
     def __init__(self,title,year,director,genre,rating,description,image,trailer) -> None:
@@ -10,6 +12,7 @@ class Movie:
         self.description = description
         self.image = image
         self.trailer = trailer
+        self.tmdb_api_key = os.getenv("TMDB_API_KEY")
         self.fetch_movie_details()
         self.fetch_movie_trailer()
         self.jsonDump()
@@ -42,7 +45,7 @@ class Movie:
 
         # Prepare the query parameters
         params = {
-            "api_key": "fd20a9767e7a560fdda58214a92a7967",
+            "api_key": self.tmdb_api_key,
             "query": self.title,
             "year": self.year,
         }
