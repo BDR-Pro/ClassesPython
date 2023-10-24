@@ -2,8 +2,9 @@ import json
 from dotenv import load_dotenv
 import os
 import requests
+
 class Movie:
-    def __init__(self,title,year,director,genre,rating,description,image,trailer) -> None:
+    def __init__(self, title, year, director, genre, rating, description, image, trailer) -> None:
         self.title = title
         self.year = year
         self.director = director
@@ -16,27 +17,27 @@ class Movie:
         self.fetch_movie_details()
         self.fetch_movie_trailer()
         self.jsonDump()
-        self.jsonLoad()
-    
-    def __str__(self) -> str:   
+        
+    def __dict__(self) -> dict:
+        return {
+            "title": self.title,
+            "year": self.year,
+            "director": self.director,
+            "genre": self.genre,
+            "rating": self.rating,
+            "description": self.description,
+            "image": self.image,
+            "trailer": self.trailer,
+        }
+
+    def __str__(self) -> str:
         return f"{self.title} ({self.year}) - {self.director} - {self.genre} - {self.rating} - {self.description} - {self.image} - {self.trailer}"
 
     def jsonDump(self):
-        jsonTemp=json.dumps(self.__dict__)
-        with open(f"{self.title}.json","w") as f:
+        jsonTemp = json.dumps(self.__dict__() , indent=4)
+        with open(f"{self.title}.json", "w") as f:
             f.write(jsonTemp)
         print("JSON file created successfully")
-        return jsonTemp
-
-    def jsonLoad(self):
-        try:
-            with open(f"{self.title}.json","r") as f:
-                jsonTemp=json.load(f)
-            print("JSON file loaded successfully")
-            return jsonTemp
-        except:
-            pass
-
 
     def fetch_movie_details(self):
         # Define the base URL and endpoint for TMDB API
@@ -45,11 +46,7 @@ class Movie:
 
         # Prepare the query parameters
         params = {
-<<<<<<< HEAD
             "api_key": self.tmdb_api_key,
-=======
-            "api_key": "xxxxx",
->>>>>>> 54b38cc1ac8272f53f65b188d4f6ff759a2e9b28
             "query": self.title,
             "year": self.year,
         }
@@ -65,15 +62,12 @@ class Movie:
                 movie_data = data["results"][0]
 
                 # Update movie details with data from TMDB
-                self.title = movie_data["title"]
-                self.year = movie_data["release_date"][:4]
-                self.genre = ", ".join([genre["name"] for genre in movie_data["genres"]])
-                self.rating = movie_data["vote_average"]
-                self.description = movie_data["overview"]
-                self.image = f"https://image.tmdb.org/t/p/w500{movie_data['poster_path']}"
-                self.trailer = self.fetch_movie_trailer()
-
-                return True
+                self.title = movie_data.get("title", self.title)
+                self.year = movie_data.get("release_date", "")[:4]
+                self.genre = ", ".join([genre["name"] for genre in movie_data.get("genres", [])])
+                self.rating = movie_data.get("vote_average", 0.0)
+                self.description = movie_data.get("overview", "")
+                self.image = f"https://image.tmdb.org/t/p/w500{movie_data.get('poster_path', '')}"
             else:
                 print("Movie not found on TMDB.")
         else:
@@ -83,6 +77,7 @@ class Movie:
         # Define the endpoint for fetching movie videos from TMDB
         endpoint = f"/movie/{self.title}/videos"
         base_url = "https://api.themoviedb.org/3"
+
         # Make the API request
         params = {"api_key": self.tmdb_api_key}
         response = requests.get(base_url + endpoint, params=params)
@@ -93,13 +88,14 @@ class Movie:
             if data.get("results"):
                 # Assuming the first result is the trailer
                 trailer_key = data["results"][0]["key"]
-                return f"https://www.youtube.com/watch?v={trailer_key}"
+                self.trailer = f"https://www.youtube.com/watch?v={trailer_key}"
             else:
-                return "Trailer not available."
+                self.trailer = "Trailer not available."
         else:
-            return "Trailer not available."
-        
-        
-movie1= Movie("good fellas","1990","Martin Scorsese","","","","","")
+            self.trailer = "Trailer not available."
 
-print(movie1.__str__())
+if __name__ == "__main__":
+    load_dotenv()  # Load environment variables from .env
+    movie1 = Movie("goodfellas", "1990", "Martin Scorsese", "", "", "", "", "")
+
+    print(movie1.__str__())
