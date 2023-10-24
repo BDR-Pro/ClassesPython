@@ -69,6 +69,10 @@ trailer_url = my_movie.fetch_movie_trailer()
 print("Trailer URL:", trailer_url)
 
 
+```
+
+
+
 ## LICENSE
 
    
