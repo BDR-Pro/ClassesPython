@@ -42,7 +42,7 @@ class Movie:
 
         # Prepare the query parameters
         params = {
-            "api_key": "fd20a9767e7a560fdda58214a92a7967",
+            "api_key": "xxxxx",
             "query": self.title,
             "year": self.year,
         }
