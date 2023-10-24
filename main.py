@@ -35,6 +35,13 @@ class Movie:
 
     def jsonDump(self):
         jsonTemp = json.dumps(self.__dict__() , indent=4)
+        #try:
+            #print("make dic of genre: ",self.genre)
+            #os.mkdir(self.genre)
+            #os.chdir(self.genre)
+        #except FileExistsError:
+        #    os.chdir(self.genre)
+            
         with open(f"{self.title}.json", "w") as f:
             f.write(jsonTemp)
         print("JSON file created successfully")
@@ -64,7 +71,8 @@ class Movie:
                 # Update movie details with data from TMDB
                 self.title = movie_data.get("title", self.title)
                 self.year = movie_data.get("release_date", "")[:4]
-                self.genre = ", ".join([genre["name"] for genre in movie_data.get("genres", [])])
+                self.director = movie_data.get("director", "")
+                self.genre = movie_data.get("genre", "")
                 self.rating = movie_data.get("vote_average", 0.0)
                 self.description = movie_data.get("overview", "")
                 self.image = f"https://image.tmdb.org/t/p/w500{movie_data.get('poster_path', '')}"
@@ -93,9 +101,50 @@ class Movie:
                 self.trailer = "Trailer not available."
         else:
             self.trailer = "Trailer not available."
-
-if __name__ == "__main__":
+def main():
     load_dotenv()  # Load environment variables from .env
-    movie1 = Movie("goodfellas", "1990", "Martin Scorsese", "", "", "", "", "")
+    page = 1
 
-    print(movie1.__str__())
+    while True:
+        # Define the base URL and endpoint for TMDB API
+        base_url = "https://api.themoviedb.org/3"
+        endpoint = "/discover/movie"
+
+        # Prepare the query parameters
+        params = {
+            "api_key": os.getenv("TMDB_API_KEY"),
+            "page": page,
+        }
+
+        # Make the API request to fetch a page of movies
+        response = requests.get(base_url + endpoint, params=params)
+
+        if response.status_code == 200:
+            data = response.json()
+
+            if data.get("results"):
+                for movie_data in data["results"]:
+                    movie = Movie(
+                        movie_data["title"],
+                        movie_data["release_date"][:4],
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                    )
+                    print(movie.__str__())
+
+                page += 1  # Move to the next page
+            else:
+                print("No more results. API query finished.")
+                break
+        elif response.status_code == 403:
+            print("API rate limit exceeded (403 error).")
+            break
+        else:
+            print(f"Error fetching data from TMDB API (Status Code: {response.status_code}).")
+            break
+
+main()
