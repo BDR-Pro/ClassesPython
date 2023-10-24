@@ -45,7 +45,11 @@ class Movie:
 
         # Prepare the query parameters
         params = {
+<<<<<<< HEAD
             "api_key": self.tmdb_api_key,
+=======
+            "api_key": "xxxxx",
+>>>>>>> 54b38cc1ac8272f53f65b188d4f6ff759a2e9b28
             "query": self.title,
             "year": self.year,
         }
